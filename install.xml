@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<plugin name="xenforo">
+	<title>Xenforo Single Sign-On</title>
+	<summary>Xenforo forums members integration plugin.</summary>
+	<author>Intelliants LLC</author>
+	<contributor>Intelliants LLC</contributor>
+	<version>3.3.0</version>
+	<date>2015-03-12</date>
+	<compatibility>3.2</compatibility>
+
+	<configgroup name="xenforo">Xenforo</configgroup>
+
+	<config group="xenforo" name="xenforo_div" type="divider">General</config>
+	<config group="xenforo" name="xenforo_enabled" type="radio" values="1,0" description="Enable Xenforo Bridge">0</config>
+	<config group="xenforo" name="xenforo_api_url" type="text" description="Forums API URL" show="xenforo_enabled|1">XENFORO_URL/forums/api.php</config>
+
+	<hooks>
+		<hook name="phpUserRegister">
+			<![CDATA[
+if ($iaCore->get('xenforo_enabled'))
+{
+	$iaCore->loadClass('common', 'xenforo', 'xenforo');
+
+	$iaXF = new iaXFBridge();
+	$iaXF->userRegister(array(
+		'username' => $userInfo['username'],
+		'email' => $userInfo['email'],
+		'password' => $password
+	));
+}
+			]]>
+		</hook>
+		<hook name="phpUserProfileUpdate">
+			<![CDATA[
+if ($iaCore->get('xenforo_enabled'))
+{
+	$iaCore->loadClass('common', 'xenforo', 'xenforo');
+
+	$iaXF = new iaXFBridge();
+	$iaXF->userUpdateInfo(array('username' => $userInfo['username']), array('email' => $userInfo['email']));
+}
+			]]>
+		</hook>
+		<hook name="phpUserPasswordUpdate">
+			<![CDATA[
+if ($iaCore->get('xenforo_enabled'))
+{
+	$iaCore->loadClass('common', 'xenforo', 'xenforo');
+
+	$iaXF = new iaXFBridge();
+	$iaXF->userUpdateInfo(array('username' => $userInfo['username']), array('password' => $password));
+}
+			]]>
+		</hook>
+		<hook name="phpUserLogin">
+			<![CDATA[
+if ($iaCore->get('xenforo_enabled') && !empty($userInfo))
+{
+	$iaCore->loadClass('common', 'xenforo', 'xenforo');
+
+	$iaXF = new iaXFBridge();
+	$iaXF->userLogin(array(
+		'username' => $userInfo['username'],
+		'password' => $password,
+		'email' => $userInfo['email']
+	));
+}
+			]]>
+		</hook>
+		<hook name="phpUserLogout">
+			<![CDATA[
+if ($iaCore->get('xenforo_enabled'))
+{
+	$iaCore->loadClass('common', 'xenforo', 'xenforo');
+
+	$iaXF = new iaXFBridge();
+	$iaXF->userLogout();
+}
+			]]>
+		</hook>
+	</hooks>
+</plugin>
